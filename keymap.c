@@ -91,6 +91,7 @@ combo_t key_combos[COMBO_COUNT] = {
 #define KC_COPY C(KC_INS)
 #define KC_CUT S(KC_DEL)
 
+#define KC_CPSWRD CAPS_WORD
 #define KC_xCASE SET_XCASE
 
 #undef RESET
@@ -152,7 +153,7 @@ combo_t key_combos[COMBO_COUNT] = {
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   REDO  ,  PASTE ,  COPY  ,   CUT  ,  UNDO  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,   xCASE ,  LEFT  ,  DOWN  ,   UP   ,  RIGHT ,   \
+     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,  CPSWRD ,  LEFT  ,  DOWN  ,   UP   ,  RIGHT ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,    INS  ,  HOME  ,  PGDN  ,  PGUP  ,   END  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
