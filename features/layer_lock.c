@@ -29,50 +29,52 @@ bool process_layer_lock(uint16_t keycode, keyrecord_t* record, uint16_t lock_key
     }
 
     if (keycode == lock_keycode) {
-        if (record->event.pressed) {  // The layer lock key was pressed.
+        if (record->event.pressed) { // The layer lock key was pressed.
             layer_lock_invert(get_highest_layer(layer_state));
         }
         return false;
     }
 
     switch (keycode) {
-        case QK_MOMENTARY ... QK_MOMENTARY_MAX:                  // `MO(layer)` keys.
-        case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX: {  // `TT(layer)`.
+        case QK_MOMENTARY ... QK_MOMENTARY_MAX:                 // `MO(layer)` keys.
+        case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX: { // `TT(layer)`.
             const uint8_t layer = keycode & 255;
             if (is_layer_locked(layer)) {
                 // Event on `MO` or `TT` key where layer is locked.
-                if (record->event.pressed) {  // On press, unlock the layer.
+                if (record->event.pressed) { // On press, unlock the layer.
                     layer_lock_invert(layer);
                 }
-                return false;  // Skip default handling.
+                return false; // Skip default handling.
             }
         } break;
 
 #ifndef NO_ACTION_TAPPING
-        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:  // `LT(layer, key)` keys.
+        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX: // `LT(layer, key)` keys.
             if (record->tap.count == 0 && !record->event.pressed && is_layer_locked((keycode >> 8) & 15)) {
                 // Release event on a held layer-tap key where the layer is locked.
-                return false;  // Skip default handling so that layer stays on.
+                return false; // Skip default handling so that layer stays on.
             }
             break;
-#endif  // NO_ACTION_TAPPING
+#endif // NO_ACTION_TAPPING
     }
 
     return true;
 }
 
-bool is_layer_locked(uint8_t layer) { return locked_layers & ((layer_state_t)1 << layer); }
+bool is_layer_locked(uint8_t layer) {
+    return locked_layers & ((layer_state_t)1 << layer);
+}
 
 void layer_lock_invert(uint8_t layer) {
     const layer_state_t mask = (layer_state_t)1 << layer;
-    if ((locked_layers & mask) == 0) {  // Layer is being locked.
+    if ((locked_layers & mask) == 0) { // Layer is being locked.
 #ifndef NO_ACTION_ONESHOT
         if (layer == get_oneshot_layer()) {
-            reset_oneshot_layer();  // Reset so that OSL doesn't turn layer off.
+            reset_oneshot_layer(); // Reset so that OSL doesn't turn layer off.
         }
-#endif  // NO_ACTION_ONESHOT
+#endif // NO_ACTION_ONESHOT
         layer_on(layer);
-    } else {  // Layer is being unlocked.
+    } else { // Layer is being unlocked.
         layer_off(layer);
     }
     layer_lock_set_user(locked_layers ^= mask);

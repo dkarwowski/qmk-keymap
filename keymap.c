@@ -17,13 +17,16 @@
 #include "features/layer_lock.h"
 #include "features/key_repeat.h"
 
+#include "g/keymap_combo.h"
+
 enum layers { BASE, TRACK, SYM, NAV, NUM, FUN, SET };
 
+// Charybdis already has some custom keycodes, adapt to that.
 #ifdef KEYBOARD_charybdis
 #    define MY_SAFE_RANGE CHARYBDIS_SAFE_RANGE
 #else
 #    define MY_SAFE_RANGE SAFE_RANGE
-#endif  // KEYBOARD_charybdis
+#endif // KEYBOARD_charybdis
 
 enum custom_keycodes {
     LAYER_LOCK = MY_SAFE_RANGE,
@@ -43,33 +46,29 @@ const key_override_t **key_overrides = (const key_override_t *[]){
     NULL,
 };
 
-#ifdef COMBO_ENABLE
-const uint16_t PROGMEM lurm_combo[] = {KC_W, KC_F, COMBO_END};
-const uint16_t PROGMEM lbrm_combo[] = {KC_X, KC_C, COMBO_END};
-const uint16_t PROGMEM rurm_combo[] = {KC_U, KC_Y, COMBO_END};
-const uint16_t PROGMEM rurp_combo[] = {KC_Y, KC_QUOT, COMBO_END};
-const uint16_t PROGMEM rbrm_combo[] = {KC_COMM, KC_DOT, COMBO_END};
-combo_t key_combos[COMBO_COUNT] = {
-    COMBO(lurm_combo, KC_ESC), COMBO(lbrm_combo, KC_TAB), COMBO(rurm_combo, KC_BSPC), COMBO(rbrm_combo, KC_ENT), COMBO(rurp_combo, DRG_TOG),
-};
-#endif  // COMBO_ENABLE
-
+// Shorteners for easier-to-read keymaps.
 #define KC_XX KC_NO
 #define KC___ KC_TRNS
 
-#define KC_os_NUM OSL(NUM)
-#define KC_os_SYM OSL(SYM)
-#define KC_os_NAV OSL(NAV)
+// One-shot layer keys.
 #define KC_os_FUN OSL(FUN)
+#define KC_os_NAV OSL(NAV)
+#define KC_os_NUM OSL(NUM)
 #define KC_os_SET OSL(SET)
+#define KC_os_SYM OSL(SYM)
 
-#define KC_os_SFT OSM(MOD_LSFT)
-#define KC_os_CTL OSM(MOD_LCTL)
+// One-shot mods.
 #define KC_os_ALT OSM(MOD_LALT)
+#define KC_os_CTL OSM(MOD_LCTL)
 #define KC_os_GUI OSM(MOD_LGUI)
+#define KC_os_SFT OSM(MOD_LSFT)
 
+// Custom keys for the KC_ wrapper.
+#define KC_CPSWRD CAPS_WORD
 #define KC_LLCK LAYER_LOCK
+#define KC_xCASE SET_XCASE
 
+// Charybdis pointer-device keys.
 #ifdef KEYBOARD_charybdis
 #    define KC_cy_DPI DPI_MOD
 #    define KC_cy_SNP S_D_MOD
@@ -84,19 +83,32 @@ combo_t key_combos[COMBO_COUNT] = {
 #    define KC_ho_SNP KC_NO
 #    define KC_tg_SCR KC_NO
 #    define KC_tg_SNP KC_NO
-#endif  // KEYBOARD_charybdis
+#endif // KEYBOARD_charybdis
 
+// Nav keys for easier copy / paste / etc.
 #define KC_REDO KC_AGIN
 #define KC_PASTE S(KC_INS)
 #define KC_COPY C(KC_INS)
 #define KC_CUT S(KC_DEL)
 
-#define KC_CPSWRD CAPS_WORD
-#define KC_xCASE SET_XCASE
+// F* keys may / may not map to pinouts, so write a simple wrapper to avoid
+// those overlaps. Dumb, but an easier fix than finding ways to output the
+// literals instead of selectively evaluating.
+#define KC_FN1 KC_F1
+#define KC_FN2 KC_F2
+#define KC_FN3 KC_F3
+#define KC_FN4 KC_F4
+#define KC_FN5 KC_F5
+#define KC_FN6 KC_F6
+#define KC_FN7 KC_F7
+#define KC_FN8 KC_F8
+#define KC_FN9 KC_F9
+#define KC_FN10 KC_F10
+#define KC_FN11 KC_F11
+#define KC_FN12 KC_F12
 
-#undef RESET
 #define KC_EEPROM EEP_RST
-#define KC_RESET QK_BOOTLOADER
+#define KC_FLASH QK_BOOTLOADER
 
 // clang-format off
 
@@ -171,19 +183,6 @@ combo_t key_combos[COMBO_COUNT] = {
                        os_FUN ,  LLCK  ,   __    ,    ENT  ,  BSPC  ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
-#define KC_FN1 KC_F1
-#define KC_FN2 KC_F2
-#define KC_FN3 KC_F3
-#define KC_FN4 KC_F4
-#define KC_FN5 KC_F5
-#define KC_FN6 KC_F6
-#define KC_FN7 KC_F7
-#define KC_FN8 KC_F8
-#define KC_FN9 KC_F9
-#define KC_FN10 KC_F10
-#define KC_FN11 KC_F11
-#define KC_FN12 KC_F12
-
 #define LAYOUT_FUN                                                                                 \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   PSCR  ,   FN7  ,   FN8  ,   FN9  ,  FN12  ,   \
@@ -201,7 +200,7 @@ combo_t key_combos[COMBO_COUNT] = {
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   , EEPROM ,  RESET  ,   RESET , EEPROM ,   XX   ,   XX   ,   XX   ,   \
+       XX   ,   XX   ,   XX   , EEPROM ,  FLASH  ,   FLASH , EEPROM ,   XX   ,   XX   ,   XX   ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
                          XX   ,   XX   ,   __    ,    XX   ,   XX   ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
@@ -222,8 +221,6 @@ combo_t key_combos[COMBO_COUNT] = {
 
 #define LAYOUT_wrap(...) LAYOUT_split_3x5_3(__VA_ARGS__)
 
-// clang-format on
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [BASE] = LAYOUT_wrap(POINTER(LAYOUT_KC(LAYOUT_BASE))),
     [TRACK] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_TRACK)),
@@ -233,6 +230,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [NAV] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_NAV)),
     [SET] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_SET)),
 };
+
+// clang-format on
 
 #ifdef KEYBOARD_charybdis
 layer_state_t layer_state_set_user(layer_state_t state) {
@@ -249,4 +248,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-void matrix_scan_user(void) { scan_caps_word(); }
+void matrix_scan_user(void) {
+    scan_caps_word();
+}

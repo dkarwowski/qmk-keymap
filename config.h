@@ -25,8 +25,6 @@
 #define ONESHOT_TAP_TOGGLE 2
 #define ONESHOT_TIMEOUT 5000
 
-#define COMBO_COUNT 5
-
 // Prevent normal rollover on alphas from accidentally triggering mods.
 #define IGNORE_MOD_TAP_INTERRUPT
 // Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
@@ -35,7 +33,7 @@
 
 #ifdef KEYBOARD_charybdis_3x5
 #    define POINTING_DEVICE_INVERT_X
-#endif  // KEYBOARD_charybdis_3x5
+#endif // KEYBOARD_charybdis_3x5
 
 // Auto Shift
 #define NO_AUTO_SHIFT_ALPHA
