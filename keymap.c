@@ -93,8 +93,9 @@ combo_t key_combos[COMBO_COUNT] = {
 
 #define KC_xCASE SET_XCASE
 
+#undef RESET
 #define KC_EEPROM EEP_RST
-#define KC_RESET RESET
+#define KC_RESET QK_BOOTLOADER
 
 // clang-format off
 
