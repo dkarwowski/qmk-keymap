@@ -18,7 +18,7 @@
 #include "features/key_repeat.h"
 
 #if defined(COMBO_ENABLE)
-#   include "g/keymap_combo.h"
+#    include "g/keymap_combo.h"
 #endif
 
 enum layers { BASE = 0, TRACK, SYM, NAV, NUM, FUN, SET };

@@ -48,7 +48,7 @@ void press_sticky_shift(keyrecord_t* record) {
     }
 
     if (current_state.key_down) {
-        current_state.tap_timer = record->event.time;
+        current_state.tap_timer  = record->event.time;
         current_state.idle_timer = record->event.time;
         register_code(KC_LSFT);
     } else {
@@ -150,4 +150,3 @@ bool process_sticky_shift(uint16_t keycode, keyrecord_t* record, uint16_t caps_w
 
     return true;
 }
-
