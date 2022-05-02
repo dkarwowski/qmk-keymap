@@ -17,9 +17,11 @@
 #include "features/layer_lock.h"
 #include "features/key_repeat.h"
 
-#include "g/keymap_combo.h"
+#if defined(COMBO_ENABLE)
+#   include "g/keymap_combo.h"
+#endif
 
-enum layers { BASE, TRACK, SYM, NAV, NUM, FUN, SET };
+enum layers { BASE = 0, TRACK, SYM, NAV, NUM, FUN, SET };
 
 // Charybdis already has some custom keycodes, adapt to that.
 #ifdef KEYBOARD_charybdis
