@@ -135,11 +135,11 @@ const key_override_t **key_overrides = (const key_override_t *[]){
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
         Q   ,    W   ,    F   ,    P   ,    B    ,     J   ,    L   ,    U   ,    Y   ,  QUOT  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-        A   ,    R   ,    S   ,    F   ,    G    ,     M   ,    N   ,    E   ,    I   ,    O   ,   \
+        A   ,    R   ,    S   ,    T   ,    G    ,     M   ,    N   ,    E   ,    I   ,    O   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
         Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMM  ,   DOT  ,  SLSH  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , STKSFT ,   XX
+                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , os_SFT ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
 #define LAYOUT_TRACK                                                                               \
@@ -244,7 +244,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 #endif
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (!process_sticky_shift(keycode, record, STICKY_SHIFT)) {
+    if (!process_sticky_shift(keycode, record, KC_LSFT)) {
         return false;
     }
     if (!process_layer_lock(keycode, record, LAYER_LOCK)) {

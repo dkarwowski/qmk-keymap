@@ -49,9 +49,34 @@ void press_sticky_shift(keyrecord_t* record) {
 
     if (current_state.key_down) {
         current_state.tap_timer = record->event.time;
-    } else if (timer_elapsed(current_state.tap_timer) < STICKY_SHIFT_TAPPING_TERM) {
         current_state.idle_timer = record->event.time;
-        ++current_state.mode;
+        register_code(KC_LSFT);
+    } else {
+        unregister_code(KC_LSFT);
+        if (timer_elapsed(current_state.tap_timer) < STICKY_SHIFT_TAPPING_TERM) {
+            ++current_state.mode;
+        }
+    }
+}
+
+// Define shifted characters for 'locked' caps. Provide a true/false value for
+// whether or not CAPS_WORD gets ended by the character.
+bool handle_caps_locking(uint16_t keycode) {
+    clear_weak_mods();
+
+    switch (keycode) {
+        case KC_A ... KC_Z:
+            add_weak_mods(MOD_BIT(KC_LSFT));
+
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case KC_UNDS:
+        case KC_MINS:
+            return true;
+
+        default:
+            return false;
     }
 }
 
@@ -61,26 +86,22 @@ bool process_sticky_shift(uint16_t keycode, keyrecord_t* record, uint16_t caps_w
         return false;
     }
 
-    switch (current_state.mode) {
-        case MOD_SHIFT:
-            if (!current_state.key_down) {
-                return true;
-            }
-            // Fallthrough
-        case CAPS_WORD:
-        case CAPS_LOCK:
-            break;
-        case ONE_SHOT:
-            current_state.mode = MOD_SHIFT;
-    }
-
-    if (timer_elapsed(current_state.idle_timer) > STICKY_SHIFT_TIMEOUT) {
-        current_state.mode = MOD_SHIFT;
+    // Ignore key releases for stuff that isn't our keycode.
+    if (!record->event.pressed) {
         return true;
     }
 
-    // Key releases don't impact us much.
-    if (!record->event.pressed) {
+    // If we've escaped the idle timer, drop the shift info and bail.
+    if (timer_elapsed(current_state.idle_timer) > STICKY_SHIFT_TIMEOUT) {
+        current_state.mode = MOD_SHIFT;
+        del_weak_mods(MOD_BIT(KC_LSFT));
+        return true;
+    }
+
+    // If we haven't escaped the idle timer, we leave the keycode for regular
+    // processing since we should still have KC_LSFT registered if we're
+    // holding down our sticky shift key.
+    if (current_state.mode == MOD_SHIFT) {
         return true;
     }
 
@@ -104,20 +125,29 @@ bool process_sticky_shift(uint16_t keycode, keyrecord_t* record, uint16_t caps_w
             break;
     }
 
-    // Remove the shift mod if it's populated.
-    del_weak_mods(MOD_BIT(KC_LSFT));
+    // Update the idle timer; when relevant, we'll use this to determine
+    // whether or not the next call will succeed.
+    current_state.idle_timer = record->event.time;
 
-    switch (keycode) {
-        case KC_A ... KC_Z:
+    switch (current_state.mode) {
+        case ONE_SHOT:
             add_weak_mods(MOD_BIT(KC_LSFT));
-
-        case KC_1 ... KC_0:
-        case KC_BSPC:
-        case KC_DEL:
-        case KC_UNDS:
-        case KC_MINS:
-            send_keyboard_report();
+            break;
+        case CAPS_WORD:
+            if (!handle_caps_locking(keycode)) {
+                current_state.mode = MOD_SHIFT;
+            }
+            break;
+        case CAPS_LOCK:
+            handle_caps_locking(keycode);
+            break;
+        default:
+            // not possible.
     }
+
+    // Ensure the keyboard registers the key as pressed.
+    send_keyboard_report();
 
     return true;
 }
+
