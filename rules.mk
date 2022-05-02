@@ -18,7 +18,7 @@ VIAL_ENABLE = no
 VIA_ENABLE = no
 
 # Source files to populate
-SRC += features/caps_word.c
+SRC += features/sticky_shift.c
 SRC += features/layer_lock.c
 SRC += features/key_repeat.c
 VPATH += keyboards/gboards

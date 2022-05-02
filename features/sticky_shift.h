@@ -15,5 +15,4 @@
 
 #include "quantum.h"
 
-bool process_caps_word(uint16_t keycode, keyrecord_t* record, uint16_t caps_word_keycode);
-void scan_caps_word(void);
+bool process_sticky_shift(uint16_t keycode, keyrecord_t* record, uint16_t caps_word_keycode);

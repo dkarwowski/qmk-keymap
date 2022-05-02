@@ -13,7 +13,7 @@
 // limitations under the License.
 #include QMK_KEYBOARD_H
 
-#include "features/caps_word.h"
+#include "features/sticky_shift.h"
 #include "features/layer_lock.h"
 #include "features/key_repeat.h"
 
@@ -30,9 +30,9 @@ enum layers { BASE, TRACK, SYM, NAV, NUM, FUN, SET };
 
 enum custom_keycodes {
     LAYER_LOCK = MY_SAFE_RANGE,
-    CAPS_WORD,
+    STICKY_SHIFT,
     KEY_REPEAT,
-    SET_XCASE,
+    ID_DELIMS,
 };
 
 const key_override_t scln_override = ko_make_basic(MOD_MASK_SHIFT, KC_COMMA, KC_SCLN);
@@ -64,9 +64,10 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 #define KC_os_SFT OSM(MOD_LSFT)
 
 // Custom keys for the KC_ wrapper.
-#define KC_CPSWRD CAPS_WORD
+#define KC_STKSFT STICKY_SHIFT
+#define KC_REPEAT KEY_REPEAT
 #define KC_LLCK LAYER_LOCK
-#define KC_xCASE SET_XCASE
+#define KC_DELIMS ID_DELIMS
 
 // Charybdis pointer-device keys.
 #ifdef KEYBOARD_charybdis
@@ -136,7 +137,7 @@ const key_override_t **key_overrides = (const key_override_t *[]){
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
         Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMM  ,   DOT  ,  SLSH  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , os_SFT ,   XX
+                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , STKSFT ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
 #define LAYOUT_TRACK                                                                               \
@@ -152,20 +153,20 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 
 #define LAYOUT_SYM                                                                                 \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-       GRV  ,  AMPR  ,  ASTR  ,  EXLM  ,   EQL   ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
+       GRV  ,  HASH  ,  PERC  ,  EXLM  ,   EQL   ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-      LPRN  ,  RPRN  ,  LCBR  ,  RCBR  ,  MINS   ,    XX   , os_SFT , os_CTL , os_ALT , os_GUI ,   \
+      LPRN  ,  RPRN  ,  LCBR  ,  RCBR  ,  UNDS   ,    XX   , os_SFT , os_CTL , os_ALT , os_GUI ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-      LBRC  ,  RBRC  ,   LT   ,   GT   ,  BSLS   ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
+      LBRC  ,  RBRC  ,   LT   ,   GT   ,  BSLS   ,    XX   , DELIMS ,   XX   ,   XX   ,   XX   ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                         ESC  ,   SPC  ,   TAB   ,    __   ,  LLCK  ,   XX
+                        AMPR  ,  MINS  ,  ASTR   ,    __   ,  LLCK  ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
 #define LAYOUT_NAV                                                                                 \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   REDO  ,  PASTE ,  COPY  ,   CUT  ,  UNDO  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,  CPSWRD ,  LEFT  ,  DOWN  ,   UP   ,  RIGHT ,   \
+     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,  REPEAT ,  LEFT  ,  DOWN  ,   UP   ,  RIGHT ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,    INS  ,  HOME  ,  PGDN  ,  PGUP  ,   END  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
@@ -176,9 +177,9 @@ const key_override_t **key_overrides = (const key_override_t *[]){
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   SLSH  ,    7   ,    8   ,    9   ,  PLUS  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,   MINS  ,    4   ,    5   ,    6   ,  COMM  ,   \
+     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,   MINS  ,    4   ,    5   ,    6   ,   DOT  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,     0   ,    1   ,    2   ,    3   ,   DOT  ,   \
+       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,     0   ,    1   ,    2   ,    3   ,  COMMA ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
                        os_FUN ,  LLCK  ,   __    ,    ENT  ,  BSPC  ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
@@ -241,13 +242,17 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 #endif
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (!process_caps_word(keycode, record, CAPS_WORD)) return false;
-    if (!process_layer_lock(keycode, record, LAYER_LOCK)) return false;
-    if (!process_key_repeat(keycode, record, KEY_REPEAT)) return false;
+    if (!process_sticky_shift(keycode, record, STICKY_SHIFT)) {
+        return false;
+    }
+    if (!process_layer_lock(keycode, record, LAYER_LOCK)) {
+        return false;
+    }
+    if (!process_key_repeat(keycode, record, KEY_REPEAT)) {
+        return false;
+    }
 
     return true;
 }
 
-void matrix_scan_user(void) {
-    scan_caps_word();
-}
+void matrix_scan_user(void) {}

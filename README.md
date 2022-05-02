@@ -6,14 +6,24 @@ trackball to exist, thus dropping the 6th thumb cluster key.
 
 ## Features
 
-### Caps Word
+### Sticky Shift
 
-* [`caps_word.h`](features/caps_word.h)
-* [`caps_word.c`](features/caps_word.c)
+* [`sticky_shift.h`](features/sticky_shift.h)
+* [`sticky_shift.c`](features/sticky_shift.c)
 
-Based off of [`getreuer`]'s implementation.
+Custom one-shot / tap dance handling for shifting keys. Performs the functions
+including:
 
-Supports shifting characters until a word-breaking character is entered.
+1. One-shot shift is sent when you perform a tap-release without pressing
+   anything else in the mean time.
+2. Regular shifting is performed if the key is held while other keys are being
+   pressed.
+3. Caps word (based on [`getreuer`]'s implementation) when double-tapped within
+   a specific window. Can be deactivated by tapping shift again (next letter
+   will _not_ be shifted), or typing a "word breaking" character.
+4. Caps lock is activated when triple-tapped within a window (e.g. rapidly
+   after caps word is activated. This is only deactivated after the custom
+   shift key is pressed again.
 
 ### Layer Lock
 
