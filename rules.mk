@@ -21,4 +21,5 @@ VIA_ENABLE = no
 SRC += features/sticky_shift.c
 SRC += features/layer_lock.c
 SRC += features/key_repeat.c
+SRC += features/flexible_delim.c
 VPATH += keyboards/gboards

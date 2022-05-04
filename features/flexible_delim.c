@@ -22,6 +22,7 @@ enum delim_mode {
 struct delim_state {
     enum delim_mode mode;
     uint16_t        keycode;
+    int16_t         last_delim;
 };
 
 #if !defined(FLEXIBLE_DELIM_DEFAULT)
@@ -80,6 +81,37 @@ bool process_flexible_delim(uint16_t keycode, keyrecord_t* record, uint16_t set_
         current_state.keycode = keycode | ((mods & MOD_MASK_SHIFT) ? QK_LSFT : 0);
         current_state.mode    = REPLACING;
         return false;
+    }
+
+    if (current_state.mode != REPLACING) {
+      return true;
+    }
+
+    switch (keycode) {
+      case KC_SPACE:
+        if (current_state.last_delim == 0) {
+          tap_code16(KC_BSPC);
+          tap_code16(KC_SPACE);
+          current_state.mode = INACTIVE;
+          current_state.keycode = KC_NO;
+        } else {
+          current_state.last_delim = 0;
+          tap_code16(current_state.keycode);
+        }
+        return false;
+      case KC_BSPC:
+        --current_state.last_delim;
+        break;
+      case KC_A ... KC_Z:
+      case KC_1 ... KC_0:
+        if (current_state.last_delim >= 0) {
+          ++current_state.last_delim;
+        }
+        break;
+      default:
+        current_state.mode = INACTIVE;
+        current_state.keycode = KC_NO;
+        break;
     }
 
     return true;
