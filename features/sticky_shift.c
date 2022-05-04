@@ -48,7 +48,6 @@ void press_sticky_shift(keyrecord_t* record) {
     }
 
     if (current_state.key_down) {
-        current_state.tap_timer  = record->event.time;
         current_state.idle_timer = record->event.time;
         register_code(KC_LSFT);
     } else {
@@ -57,6 +56,7 @@ void press_sticky_shift(keyrecord_t* record) {
             ++current_state.mode;
         }
     }
+    current_state.tap_timer = record->event.time;
 }
 
 // Define shifted characters for 'locked' caps. Provide a true/false value for
