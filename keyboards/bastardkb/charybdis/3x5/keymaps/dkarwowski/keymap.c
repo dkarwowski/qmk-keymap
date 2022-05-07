@@ -23,7 +23,7 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 };
 
 // Custom keys for the KC_ wrapper.
-#define KC_STKSFT STICKY_SHIFT
+#define KC_SKYSFT STICKY_SHIFT
 #define KC_REPEAT KEY_REPEAT
 #define KC_LLCK LAYER_LOCK
 #define KC_DELIMS ID_DELIMS
@@ -44,7 +44,7 @@ const key_override_t **key_overrides = (const key_override_t *[]){
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
         Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMM  ,   DOT  ,  SLSH  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , os_SFT ,   XX
+                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , SKYSFT ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
 #define LAYOUT_TRACK                                                                               \
@@ -147,7 +147,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (!process_sticky_shift(keycode, record, KC_LSFT)) {
+    if (!process_sticky_shift(keycode, record, STICKY_SHIFT)) {
         return false;
     }
     if (!process_layer_lock(keycode, record, LAYER_LOCK)) {
