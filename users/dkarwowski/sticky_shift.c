@@ -20,7 +20,7 @@ enum shift_mode {
 struct shift_state {
     enum shift_mode mode;
     uint16_t        idle_timer;
-
+    bool dirty;
     bool     key_down;
     uint16_t tap_timer;
 };
@@ -30,22 +30,30 @@ static struct shift_state current_state;
 void press_sticky_shift(keyrecord_t* record) {
     current_state.key_down = record->event.pressed;
 
-    if (timer_elapsed(current_state.tap_timer) > STICKY_SHIFT_TAPPING_TERM) {
-        // If the key is pressed / release beyond our last tapping term, we
-        // kill the state immediately.
+    bool was_in_mode = current_state.mode != MOD_SHIFT;
+    bool within_tap_window = timer_elapsed(current_state.tap_timer) < STICKY_SHIFT_TAPPING_TERM;
+
+    if ((current_state.key_down && !within_tap_window) || current_state.dirty) {
         current_state.mode = MOD_SHIFT;
     }
 
     if (current_state.key_down) {
+        if (current_state.mode == CAPS_LOCK) {
+            current_state.mode = MOD_SHIFT;
+        } else if (within_tap_window && current_state.mode != MOD_SHIFT) {
+            ++current_state.mode;
+        } else {
+            register_code(KC_LSFT);
+        }
         current_state.idle_timer = record->event.time;
-        register_code(KC_LSFT);
+        current_state.tap_timer = record->event.time;
+        current_state.dirty = false;
     } else {
         unregister_code(KC_LSFT);
-        if (timer_elapsed(current_state.tap_timer) < STICKY_SHIFT_TAPPING_TERM) {
-            ++current_state.mode;
+        if (within_tap_window && current_state.mode == MOD_SHIFT && !was_in_mode) {
+            current_state.mode = ONE_SHOT;
         }
     }
-    current_state.tap_timer = record->event.time;
 }
 
 // Define shifted characters for 'locked' caps. Provide a true/false value for
@@ -117,10 +125,12 @@ bool process_sticky_shift(uint16_t keycode, keyrecord_t* record, uint16_t caps_w
     // Update the idle timer; when relevant, we'll use this to determine
     // whether or not the next call will succeed.
     current_state.idle_timer = record->event.time;
+    current_state.dirty = true;
 
     switch (current_state.mode) {
         case ONE_SHOT:
             add_weak_mods(MOD_BIT(KC_LSFT));
+            current_state.mode = MOD_SHIFT;
             break;
         case CAPS_WORD:
             if (!handle_caps_locking(keycode)) {

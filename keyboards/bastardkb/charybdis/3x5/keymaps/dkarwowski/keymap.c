@@ -147,6 +147,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (!process_flexible_delim(keycode, record, ID_DELIMS)) {
+        return false;
+    }
     if (!process_sticky_shift(keycode, record, STICKY_SHIFT)) {
         return false;
     }
