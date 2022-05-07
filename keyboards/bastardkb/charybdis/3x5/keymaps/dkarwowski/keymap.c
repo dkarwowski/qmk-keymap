@@ -142,7 +142,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // clang-format on
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    charybdis_set_pointer_sniping_enabled(layer_state_cmp(state, LAYER_POINTER));
+    charybdis_set_pointer_sniping_enabled(layer_state_cmp(state, TRACK));
     return state;
 }
 
