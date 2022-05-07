@@ -4,10 +4,10 @@
 
 #include QMK_KEYBOARD_H
 
-#include "features/sticky_shift.h"
-#include "features/layer_lock.h"
-#include "features/key_repeat.h"
-#include "features/flexible_delim.h"
+#include "sticky_shift.h"
+#include "layer_lock.h"
+#include "key_repeat.h"
+#include "flexible_delim.h"
 
 enum layers { BASE = 0, TRACK, SYM, NAV, NUM, FUN, SET };
 
