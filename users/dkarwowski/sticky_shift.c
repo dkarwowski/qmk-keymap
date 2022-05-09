@@ -20,9 +20,10 @@ enum shift_mode {
 struct shift_state {
     enum shift_mode mode;
     uint16_t        idle_timer;
-    bool dirty;
-    bool     key_down;
-    uint16_t tap_timer;
+    bool            dirty;
+    bool            was_in_mode;
+    bool            key_down;
+    uint16_t        tap_timer;
 };
 
 static struct shift_state current_state;
@@ -30,29 +31,30 @@ static struct shift_state current_state;
 void press_sticky_shift(keyrecord_t* record) {
     current_state.key_down = record->event.pressed;
 
-    bool was_in_mode = current_state.mode != MOD_SHIFT;
     bool within_tap_window = timer_elapsed(current_state.tap_timer) < STICKY_SHIFT_TAPPING_TERM;
 
-    if ((current_state.key_down && !within_tap_window) || current_state.dirty) {
-        current_state.mode = MOD_SHIFT;
-    }
-
     if (current_state.key_down) {
-        if (current_state.mode == CAPS_LOCK) {
-            current_state.mode = MOD_SHIFT;
-        } else if (within_tap_window && current_state.mode != MOD_SHIFT) {
+        if (!within_tap_window || current_state.mode == CAPS_LOCK || current_state.dirty) {
+            current_state.was_in_mode = current_state.mode != MOD_SHIFT;
+            current_state.mode        = MOD_SHIFT;
+        }
+
+        if (within_tap_window && current_state.mode != MOD_SHIFT) {
             ++current_state.mode;
         } else {
             register_code(KC_LSFT);
         }
+
         current_state.idle_timer = record->event.time;
-        current_state.tap_timer = record->event.time;
-        current_state.dirty = false;
+        current_state.tap_timer  = record->event.time;
+        current_state.dirty      = false;
     } else {
         unregister_code(KC_LSFT);
-        if (within_tap_window && current_state.mode == MOD_SHIFT && !was_in_mode) {
+        if (within_tap_window && current_state.mode == MOD_SHIFT && !current_state.was_in_mode && !current_state.dirty) {
+            add_oneshot_mods(MOD_BIT(KC_LSFT));
             current_state.mode = ONE_SHOT;
         }
+        current_state.was_in_mode = false;
     }
 }
 
@@ -92,13 +94,9 @@ bool process_sticky_shift(uint16_t keycode, keyrecord_t* record, uint16_t caps_w
     if (timer_elapsed(current_state.idle_timer) > STICKY_SHIFT_TIMEOUT) {
         current_state.mode = MOD_SHIFT;
         del_weak_mods(MOD_BIT(KC_LSFT));
-        return true;
-    }
-
-    // If we haven't escaped the idle timer, we leave the keycode for regular
-    // processing since we should still have KC_LSFT registered if we're
-    // holding down our sticky shift key.
-    if (current_state.mode == MOD_SHIFT) {
+        if (current_state.mode == ONE_SHOT) {
+            del_oneshot_mods(MOD_BIT(KC_LSFT));
+        }
         return true;
     }
 
@@ -122,10 +120,20 @@ bool process_sticky_shift(uint16_t keycode, keyrecord_t* record, uint16_t caps_w
             break;
     }
 
+    // Mark dirty whenever we get a keycode, so that we can skip oneshot mode
+    // if it's going to otherwise get activated.
+    current_state.dirty = true;
+
+    // If we haven't escaped the idle timer, we leave the keycode for regular
+    // processing since we should still have KC_LSFT registered if we're
+    // holding down our sticky shift key.
+    if (current_state.mode == MOD_SHIFT) {
+        return true;
+    }
+
     // Update the idle timer; when relevant, we'll use this to determine
     // whether or not the next call will succeed.
     current_state.idle_timer = record->event.time;
-    current_state.dirty = true;
 
     switch (current_state.mode) {
         case ONE_SHOT:
