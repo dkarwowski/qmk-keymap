@@ -24,7 +24,7 @@ qmk-firmware/users/dkarwowski: qmk-firmware/Makefile
 KEYBOARDS := bastardkb/charybdis/3x5
 
 qmk-firmware/keyboards/$(KEYBOARDS)/keymaps/dkarwowski: qmk-firmware/Makefile
-	ln -f -s -T $(realpath ./)/keyboards/$(subst qmk-firmware/keyboards/,,$@) $@
+	ln -f -s -T $(realpath ./)/$(subst qmk-firmware/,,$@) $@
 
 .SECONDEXPANSION:
 .PHONY: $(KEYBOARDS)
