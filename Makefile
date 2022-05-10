@@ -3,37 +3,39 @@
 
 .PHONY: clean
 clean:
-	rm qmk-firmware/users/dkarwowski
-	rm qmk-firmware/keyboards/$(CHARYBDIS_DIR)/keymaps/dkarwowski
+	rm *.hex
 
+.PHONY: cleanall
+cleanall: clean
+	git submodule deinit --force --all
+	rm -r qmk-firmware
+
+.PHONY: qmk-firmware
 qmk-firmware:
 	git submodule sync --recursive
 	git submodule update --init --recursive --progress
-	ln -s users/dkarwowski qmk-firmware/users/dkarwowski
-	cd qmk-firmware; qmk setup
-
-.PHONY: userspace
-userspace:
-ifeq (,$(wildcard qmk-firmware/users/dkarwowski))
-	ln -s $(realpath ./)/users/dkarwowski qmk-firmware/users/dkarwowski
-endif
 
 .PHONY: qmk-update
 qmk-update: qmk-firmware
 	git submodule update --remote qmk-firmware
 
-CHARYBDIS_DIR:= bastardkb/charybdis/3x5
+qmk-firmware/users/dkarwowski: qmk-firmware
+	ln -f -s -T $(realpath ./)/users/dkarwowski $@
 
-.PHONY: charybdis
-charybdis: userspace
-ifeq (,$(wildcard qmk-firmware/keyboards/$(CHARYBDIS_DIR)/keymaps/dkarwowski))
-	ln -s $(realpath ./)/keyboards/$(CHARYBDIS_DIR)/keymaps/dkarwowski \
-		qmk-firmware/keyboards/$(CHARYBDIS_DIR)/keymaps/dkarwowski
-endif
+KEYBOARDS := bastardkb/charybdis/3x5
 
-charybdis-build: charybdis
-	cd qmk-firmware; qmk compile -kb $(CHARYBDIS_DIR) -km dkarwowski
+qmk-firmware/keyboards/$(KEYBOARDS)/keymaps/dkarwowski: \
+	qmk-firmware qmk-firmware/users/dkarwowski
+	ln -f -s -T $(realpath ./)/keyboards/$(subst qmk-firmware/keyboards/,,$@) $@
 
-charybdis-flash: charybdis
-	cd qmk-firmware; qmk flash -kb $(CHARYBDIS_DIR) -km dkarwowski
+.SECONDEXPANSION:
+.PHONY: $(KEYBOARDS)
+$(KEYBOARDS): \
+	qmk-firmware/keyboards/$$@/keymaps/dkarwowski
+	$(MAKE) -C qmk-firmware $@:dkarwowski:flash
 
+.SECONDEXPANSION:
+.PHONY: $(KEYBOARDS).hex
+$(KEYBOARDS).hex: \
+	qmk-firmware/keyboards/$$(basename $$@)/keymaps/dkarwowski
+	$(MAKE) -C qmk-firmware $(basename $@):dkarwowski
