@@ -4,6 +4,39 @@ Directory contains my current [QMK] keymap, targeted for a [Charybdis Nano].
 The base layer uses a Colemak-DH layout rather than QWERTY and expects the
 trackball to exist, thus dropping the 6th thumb cluster key.
 
+## How to build
+
+This repo provides a non-fork pattern for maintaining my keymap (particularly,
+this seems most aligned with the requirements for Google's employee copyright
+requirements).
+
+The directory is set up such that:
+
+```
+qmk-keymap/
+  qmk-firmware/            # QMK's firmware in a git submodule.
+    ...
+  shared/                  # Userspace directory.
+    ...                    # Gets linked to qmk-firmware/users/dkarwowski
+  bastardkb/charybdis/3x5/ # Keyboard's keymap directory.
+    ...                    # Maps to qmk-firmware/keyboards/$KB/keymaps/dkarwowski
+```
+
+To build the hex files, you can simply run:
+
+```shell
+$ make
+```
+
+To flash a specific keyboard with my keymap:
+
+```shell
+$ make bastardkb/charybdis/3x5
+```
+
+If I ever add other keymaps, those will work identically to above (and the
+general `make` call should, by default, build those as well).
+
 ## Features
 
 ### Sticky Shift
