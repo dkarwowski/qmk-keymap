@@ -15,13 +15,11 @@ enum custom_keycodes {
 
 const key_override_t scln_override = ko_make_basic(MOD_MASK_SHIFT, KC_COMMA, KC_SCLN);
 const key_override_t coln_override = ko_make_basic(MOD_MASK_SHIFT, KC_DOT, KC_COLN);
-const key_override_t quot_override = ko_make_basic(MOD_MASK_SHIFT, KC_DQUO, KC_QUOTE);
 const key_override_t ques_override = ko_make_basic(MOD_MASK_SHIFT, KC_QUES, KC_GRV);
 
 const key_override_t **key_overrides = (const key_override_t *[]){
     &scln_override,
     &coln_override,
-    &quot_override,
     &ques_override,
     NULL,
 };
@@ -42,42 +40,40 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 
 // clang-format off
 
-#define LAYOUT_BASE                                                                                \
+#define _BASE                                                                                      \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-        Q   ,    W   ,    F   ,    P   ,    B    ,     J   ,    L   ,    U   ,    Y   ,  DQUO  ,   \
+        Q   ,    W   ,    F   ,    P   ,    B    ,     J   ,    L   ,    U   ,    Y   ,  QUOTE ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
         A   ,    R   ,    S   ,    T   ,    G    ,     M   ,    N   ,    E   ,    I   ,    O   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
         Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMM  ,   DOT  ,  QUES  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , SKYSFT ,   XX
-  /*                 +--------|--------|--------+ +--------|--------|--------+                  */
+                       os_NAV ,  SPACE , os_NUM  ,  os_SYM , SKYSFT
+  /*                 +--------|--------|--------+ +--------|--------+                           */
 
-#define LAYOUT_TRACK                                                                               \
+#define _TRACK                                                                                     \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   , cy_DPI , cy_SNP  ,    XX   ,   XX   , tg_SNP , tg_SCR ,   XX   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
      os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,    XX   , os_SFT , os_CTL , os_ALT , os_GUI ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       __   ,   XX   , ho_SNP , ho_SCR ,   XX    ,    XX   ,  BTN1  ,  BTN3  ,  BTN2  ,   XX   ,   \
+       __   ,   XX   , ho_SNP , ho_SCR ,   XX    ,    XX   ,  BTN1  ,  BTN3  ,  BTN2  ,   __   ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                        BTN3  ,  BTN1  ,  BTN2   ,    XX   ,  LLCK  ,   XX
-  /*                 +--------|--------|--------+ +--------|--------|--------+                  */
+                        BTN3  ,  BTN1  ,  BTN2   ,    XX   ,  LLCK
+  /*                 +--------|--------|--------+ +--------|--------+                           */
 
-#define KC_SFTTAB S(KC_TAB)
-
-#define LAYOUT_SYM                                                                                 \
+#define _SYM                                                                                       \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-      TILD  ,  AMPR  ,  ASTR  ,  EXLM  ,  UNDS   ,    AT   ,  HASH  ,  PERC  ,  PIPE  ,  BSLS  ,   \
+      GRAVE ,  TILDE ,  AMPR  ,  ASTR  ,  PLUS   ,    AT   ,  HASH  ,  PERC  ,  PIPE  ,  BSLS  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
       LPRN  ,  RPRN  ,  LCBR  ,  RCBR  ,  EQUAL  ,  DOLLAR , os_SFT , os_CTL , os_ALT , os_GUI ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       LT   ,   GT   ,  LBRC  ,  RBRC  ,  PLUS   ,   CIRC  ,  SLASH ,  SCLN  ,  COLON ,  GRAVE ,   \
+       LT   ,   GT   ,  LBRC  ,  RBRC  ,  EXLM   ,   CIRC  ,   UNDS ,  SCLN  ,  COLON ,  SLASH ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                        MINUS ,  SPACE , DELIMS  ,    __   ,  LLCK  ,   XX
-  /*                 +--------|--------|--------+ +--------|--------|--------+                  */
+                       DELIMS ,  SPACE ,  MINS   ,    __   ,  LLCK
+  /*                 +--------|--------|--------+ +--------|--------+                           */
 
-#define LAYOUT_NAV                                                                                 \
+#define _NAV                                                                                       \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
@@ -85,21 +81,21 @@ const key_override_t **key_overrides = (const key_override_t *[]){
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
       UNDO  ,   CUT  ,  COPY  ,  PASTE ,  REDO   ,    INS  ,  HOME  ,  PGDN  ,  PGUP  ,   END  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                         __   ,  LLCK  , os_SET  ,    XX   ,   XX   ,   XX
-  /*                 +--------|--------|--------+ +--------|--------|--------+                  */
+                         __   ,  LLCK  , os_SET  ,    XX   ,   XX
+  /*                 +--------|--------|--------+ +--------|--------+                           */
 
-#define LAYOUT_NUM                                                                                 \
+#define _NUM                                                                                       \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   SLSH  ,    7   ,    8   ,    9   ,  BSPC  ,   \
+       XX   ,   XX   ,   XX   ,   XX   ,  UNDS   ,   SLASH ,    7   ,    8   ,    9   ,  BSPC  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,   PLUS  ,    4   ,    5   ,    6   ,   DOT  ,   \
+     os_GUI , os_ALT , os_CTL , os_SFT ,  EQUAL  ,   ASTR  ,    4   ,    5   ,    6   ,  COMMA ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,  LBRC  ,  RBRC  ,   XX    ,     0   ,    1   ,    2   ,    3   ,  COMMA ,   \
+       LT   ,   GT   ,  LBRC  ,  RBRC  ,  PLUS   ,   MINUS ,    1   ,    2   ,    3   ,   DOT  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                       os_FUN ,  LLCK  ,   __    ,    ENT  ,  MINS  ,   XX
-  /*                 +--------|--------|--------+ +--------|--------|--------+                  */
+                       os_FUN ,  LLCK  ,   __    ,    ENT  ,    0
+  /*                 +--------|--------|--------+ +--------|--------+                           */
 
-#define LAYOUT_FUN                                                                                 \
+#define _FUN                                                                                       \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   PSCR  ,   FN7  ,   FN8  ,   FN9  ,  FN12  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
@@ -107,10 +103,10 @@ const key_override_t **key_overrides = (const key_override_t *[]){
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   PAUS  ,   FN1  ,   FN2  ,   FN3  ,  FN10  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                         __   ,  LLCK  , os_SET  ,    XX   ,   XX   ,   XX
-  /*                 +--------|--------|--------+ +--------|--------|--------+                  */
+                         __   ,  LLCK  , os_SET  ,    XX   ,   XX
+  /*                 +--------|--------|--------+ +--------|--------+                           */
 
-#define LAYOUT_SET                                                                                 \
+#define _SET                                                                                       \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   ,   XX   ,   XX    ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
@@ -118,8 +114,8 @@ const key_override_t **key_overrides = (const key_override_t *[]){
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
        XX   ,   XX   ,   XX   , EEPROM ,  FLASH  ,   FLASH , EEPROM ,   XX   ,   XX   ,   XX   ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                         XX   ,   XX   ,   __    ,    XX   ,   XX   ,   XX
-  /*                 +--------|--------|--------+ +--------|--------|--------+                  */
+                         XX   ,   XX   ,   __    ,    XX   ,   XX
+  /*                 +--------|--------|--------+ +--------|--------+                           */
 
 #define _POINTER_MOD(\
     L00, L01, L02, L03, L04, R00, R01, R02, R03, R04, \
@@ -138,13 +134,13 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 #define LAYOUT_wrap(...) LAYOUT_split_3x5_3(__VA_ARGS__)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [BASE] = LAYOUT_wrap(POINTER(LAYOUT_KC(LAYOUT_BASE))),
-    [TRACK] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_TRACK)),
-    [SYM] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_SYM)),
-    [NUM] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_NUM)),
-    [FUN] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_FUN)),
-    [NAV] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_NAV)),
-    [SET] = LAYOUT_wrap(LAYOUT_KC(LAYOUT_SET)),
+    [BASE] = LAYOUT_wrap(POINTER(_KC(_BASE, XX))),
+    [TRACK] = LAYOUT_wrap(_KC(_TRACK, XX)),
+    [SYM] = LAYOUT_wrap(_KC(_SYM, XX)),
+    [NUM] = LAYOUT_wrap(_KC(_NUM, XX)),
+    [FUN] = LAYOUT_wrap(_KC(_FUN, XX)),
+    [NAV] = LAYOUT_wrap(_KC(_NAV, XX)),
+    [SET] = LAYOUT_wrap(_KC(_SET, XX)),
 };
 
 // clang-format on
