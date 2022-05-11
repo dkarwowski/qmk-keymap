@@ -70,3 +70,5 @@ enum layers { BASE = 0, TRACK, SYM, NAV, NUM, FUN, SET };
       KC_##l30, KC_##l31, KC_##l32,                      \
       KC_##r30, KC_##r31, KC_##r32
 #define LAYOUT_KC(...) _LAYOUT_KC(__VA_ARGS__)
+
+// clang-format on

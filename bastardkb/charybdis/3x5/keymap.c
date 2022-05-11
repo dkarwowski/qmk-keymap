@@ -15,10 +15,14 @@ enum custom_keycodes {
 
 const key_override_t scln_override = ko_make_basic(MOD_MASK_SHIFT, KC_COMMA, KC_SCLN);
 const key_override_t coln_override = ko_make_basic(MOD_MASK_SHIFT, KC_DOT, KC_COLN);
+const key_override_t quot_override = ko_make_basic(MOD_MASK_SHIFT, KC_DQUO, KC_QUOTE);
+const key_override_t ques_override = ko_make_basic(MOD_MASK_SHIFT, KC_QUES, KC_GRV);
 
 const key_override_t **key_overrides = (const key_override_t *[]){
     &scln_override,
     &coln_override,
+    &quot_override,
+    &ques_override,
     NULL,
 };
 
@@ -40,11 +44,11 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 
 #define LAYOUT_BASE                                                                                \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-        Q   ,    W   ,    F   ,    P   ,    B    ,     J   ,    L   ,    U   ,    Y   ,  QUOT  ,   \
+        Q   ,    W   ,    F   ,    P   ,    B    ,     J   ,    L   ,    U   ,    Y   ,  DQUO  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
         A   ,    R   ,    S   ,    T   ,    G    ,     M   ,    N   ,    E   ,    I   ,    O   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-        Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMM  ,   DOT  ,  SLSH  ,   \
+        Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMM  ,   DOT  ,  QUES  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
                        os_NAV ,  SPACE , os_NUM  ,  os_SYM , SKYSFT ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
@@ -60,37 +64,39 @@ const key_override_t **key_overrides = (const key_override_t *[]){
                         BTN3  ,  BTN1  ,  BTN2   ,    XX   ,  LLCK  ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
+#define KC_SFTTAB S(KC_TAB)
+
 #define LAYOUT_SYM                                                                                 \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-       GRV  ,  HASH  ,  PERC  ,  EXLM  ,   EQL   ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
+      TILD  ,  AMPR  ,  ASTR  ,  EXLM  ,  UNDS   ,    AT   ,  HASH  ,  PERC  ,  PIPE  ,  BSLS  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-      LPRN  ,  RPRN  ,  LCBR  ,  RCBR  ,  UNDS   ,    XX   , os_SFT , os_CTL , os_ALT , os_GUI ,   \
+      LPRN  ,  RPRN  ,  LCBR  ,  RCBR  ,  EQUAL  ,  DOLLAR , os_SFT , os_CTL , os_ALT , os_GUI ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-      LBRC  ,  RBRC  ,   LT   ,   GT   ,  BSLS   ,    XX   , DELIMS ,   XX   ,   XX   ,   XX   ,   \
+       LT   ,   GT   ,  LBRC  ,  RBRC  ,  PLUS   ,   CIRC  ,  SLASH ,  SCLN  ,  COLON ,  GRAVE ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                        AMPR  ,  MINS  ,  ASTR   ,    __   ,  LLCK  ,   XX
+                        MINUS ,  SPACE , DELIMS  ,    __   ,  LLCK  ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
 #define LAYOUT_NAV                                                                                 \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   REDO  ,  PASTE ,  COPY  ,   CUT  ,  UNDO  ,   \
+       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,    XX   ,   XX   ,   XX   ,   XX   ,   XX   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
      os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,  REPEAT ,  LEFT  ,  DOWN  ,   UP   ,  RIGHT ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,    INS  ,  HOME  ,  PGDN  ,  PGUP  ,   END  ,   \
+      UNDO  ,   CUT  ,  COPY  ,  PASTE ,  REDO   ,    INS  ,  HOME  ,  PGDN  ,  PGUP  ,   END  ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
                          __   ,  LLCK  , os_SET  ,    XX   ,   XX   ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
 #define LAYOUT_NUM                                                                                 \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   SLSH  ,    7   ,    8   ,    9   ,  PLUS  ,   \
+       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,   SLSH  ,    7   ,    8   ,    9   ,  BSPC  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,   MINS  ,    4   ,    5   ,    6   ,   DOT  ,   \
+     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,   PLUS  ,    4   ,    5   ,    6   ,   DOT  ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   ,   XX   ,   XX    ,     0   ,    1   ,    2   ,    3   ,  COMMA ,   \
+       XX   ,   XX   ,  LBRC  ,  RBRC  ,   XX    ,     0   ,    1   ,    2   ,    3   ,  COMMA ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-                       os_FUN ,  LLCK  ,   __    ,    ENT  ,  BSPC  ,   XX
+                       os_FUN ,  LLCK  ,   __    ,    ENT  ,  MINS  ,   XX
   /*                 +--------|--------|--------+ +--------|--------|--------+                  */
 
 #define LAYOUT_FUN                                                                                 \
