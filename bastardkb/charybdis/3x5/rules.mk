@@ -1,2 +1,2 @@
-# Enable behaviours we need
+# Trackball trumps mousekeys
 MOUSEKEY_ENABLE = no
