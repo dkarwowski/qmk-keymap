@@ -18,7 +18,7 @@ struct delim_state {
 #    define FLEXIBLE_DELIM_DEFAULT KC_UNDS
 #endif
 
-static struct delim_state current_state = {
+static struct delim_state state = {
     .mode    = INACTIVE,
     .keycode = KC_NO,
 };
@@ -29,19 +29,19 @@ bool process_flexible_delim(uint16_t keycode, keyrecord_t* record, uint16_t set_
     }
 
     if (keycode == set_delims_key) {
-        switch (current_state.mode) {
+        switch (state.mode) {
             case INACTIVE:
-                current_state.mode = WAITING;
+                state.mode = WAITING;
                 break;
             case WAITING:
             case REPLACING:
-                current_state.mode = INACTIVE;
+                state.mode = INACTIVE;
                 break;
         }
         return false;
     }
 
-    if (current_state.mode == INACTIVE) {
+    if (state.mode == INACTIVE) {
         return true;
     }
 
@@ -65,41 +65,37 @@ bool process_flexible_delim(uint16_t keycode, keyrecord_t* record, uint16_t set_
             break;
     }
 
-    if (current_state.mode == WAITING) {
-        uint8_t mods          = get_mods() | get_oneshot_mods();
-        current_state.keycode = keycode | ((mods & MOD_MASK_SHIFT) ? QK_LSFT : 0);
-        current_state.mode    = REPLACING;
+    if (state.mode == WAITING) {
+        uint8_t mods  = get_mods() | get_oneshot_mods();
+        state.keycode = keycode | ((mods & MOD_MASK_SHIFT) ? QK_LSFT : 0);
+        state.mode    = REPLACING;
         return false;
-    }
-
-    if (current_state.mode != REPLACING) {
-        return true;
     }
 
     switch (keycode) {
         case KC_SPACE:
-            if (current_state.last_delim == 0) {
+            if (state.last_delim == 0) {
                 tap_code16(KC_BSPC);
                 tap_code16(KC_SPACE);
-                current_state.mode    = INACTIVE;
-                current_state.keycode = KC_NO;
+                state.mode    = INACTIVE;
+                state.keycode = KC_NO;
             } else {
-                current_state.last_delim = 0;
-                tap_code16(current_state.keycode);
+                state.last_delim = 0;
+                tap_code16(state.keycode);
             }
             return false;
         case KC_BSPC:
-            --current_state.last_delim;
+            --state.last_delim;
             break;
         case KC_A ... KC_Z:
         case KC_1 ... KC_0:
-            if (current_state.last_delim >= 0) {
-                ++current_state.last_delim;
+            if (state.last_delim >= 0) {
+                ++state.last_delim;
             }
             break;
         default:
-            current_state.mode    = INACTIVE;
-            current_state.keycode = KC_NO;
+            state.mode    = INACTIVE;
+            state.keycode = KC_NO;
             break;
     }
 
