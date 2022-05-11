@@ -15,7 +15,7 @@ $(KEYBOARDS).hex: \
 $(KEYBOARDS): \
 	qmk-firmware/keyboards/$$@/keymaps/dkarwowski \
 	qmk-firmware/users/dkarwowski
-	$(MAKE) -C qmk-firmware $@:dkarwowski:flash
+	$(MAKE) -C qmk-firmware $@:dkarwowski:dfu
 
 qmk-firmware/Makefile:
 	git submodule sync --recursive
