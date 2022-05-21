@@ -30,8 +30,12 @@ jobs:
       run: git status
     - name: stage changed files
       run: git add .
+    - name: set user
+      run: |
+        git config --global user.email "github-actions@users.noreply.github.com"
+        git config --global user.name "Github Actions Bot"
     - name: commit changed files
-      run: git commit -m "auto updating assets/*.svg" --author "Actions <github-action@users.noreply.github.com>"
+      run: git commit -m "auto updating assets/*.svg"
     - name: fetch from master
       run: git fetch origin main
     - name: push code to master
