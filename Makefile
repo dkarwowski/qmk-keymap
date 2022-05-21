@@ -42,10 +42,13 @@ format: \
 	cd qmk-firmware; qmk format-c **/dkarwowski/*.{c,h}
 	goimports -w svg/**.go
 
-assets/$(subst /,_,$(KEYBOARDS)).svg: $(KEYBOARDS)/keymap.c
+build/generate: svg/generate.go
+	cd svg; go build -o ../$@ ../$^
+
+assets/$(subst /,_,$(KEYBOARDS)).svg: $(KEYBOARDS)/keymap.c build/generate
 	if [ ! -d "assets" ]; then mkdir assets; fi
-	cd svg; go run generate.go ../$(KEYBOARDS)/keymap.c > ../$@.tmp || ($(RM) ../$@.tmp)
-	cmp -s $@.tmp $@ || mv -f $@.tmp $@
+	build/generate $(KEYBOARDS)/keymap.c > $@.tmp || ($(RM) $@.tmp)
+	(cmp -s $@.tmp $@ && $(RM) $@.tmp) || mv -f $@.tmp $@
 
 .PHONY: clean local-clean qmk-clean
 clean: local-clean qmk-clean
