@@ -80,7 +80,7 @@ ignore certain keys.
 
 ### Bastardkb Charybdis Nano
 
-![bastardkb/charybdis/3x5/keymap.c](assets/bastardkb_charbydis_3x5.svg)
+![bastardkb/charybdis/3x5/keymap.c](./assets/bastardkb_charbydis_3x5.svg)
 
 ## License
 
