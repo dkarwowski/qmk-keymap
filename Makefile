@@ -7,6 +7,9 @@ flash: bastardkb/charybdis/3x5
 
 KEYBOARDS := bastardkb/charybdis/3x5
 
+.PHONY: assets
+assets: assets/$(subst /,_,$(KEYBOARDS)).svg
+
 .SECONDEXPANSION:
 .PHONY: $(KEYBOARDS).hex
 $(KEYBOARDS).hex: \
