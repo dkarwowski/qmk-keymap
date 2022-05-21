@@ -76,6 +76,12 @@ state that I prefer to use.
 Supports repeating the last keypress sent, including modifiers. Configured to
 ignore certain keys.
 
+## Keyboards
+
+### Bastardkb Charybdis Nano
+
+![bastardkb/charybdis/3x5/keymap.c](assets/bastardkb_charbydis_3x5.svg)
+
 ## License
 
 This code is under an Apache License 2.0, see the [LICENSE file] fore more

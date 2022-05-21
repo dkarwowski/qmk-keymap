@@ -40,6 +40,12 @@ format: \
 	qmk-firmware/keyboards/$(KEYBOARDS)/keymaps/dkarwowski \
 	qmk-firmware/users/dkarwowski
 	cd qmk-firmware; qmk format-c **/dkarwowski/*.{c,h}
+	goimports -w svg/**.go
+
+assets/$(subst /,_,$(KEYBOARDS)).svg: $(KEYBOARDS)/keymap.c
+	if [ ! -d "assets" ]; then mkdir assets; fi
+	cd svg; go run generate.go ../$(KEYBOARDS)/keymap.c > ../$@.tmp || ($(RM) ../$@.tmp)
+	cmp -s $@.tmp $@ || mv -f $@.tmp $@
 
 .PHONY: clean local-clean qmk-clean
 clean: local-clean qmk-clean

@@ -38,26 +38,29 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 #define KC_tg_SCR DRG_TOG
 #define KC_tg_SNP SNP_TOG
 
+// Toggle into pointer
+#define KC_trk_T LT(TRACK, KC_T)
+
 // clang-format off
 
 #define _BASE                                                                                      \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
         Q   ,    W   ,    F   ,    P   ,    B    ,     J   ,    L   ,    U   ,    Y   ,  QUOTE ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-        A   ,    R   ,    S   ,    T   ,    G    ,     M   ,    N   ,    E   ,    I   ,    O   ,   \
+        A   ,    R   ,    S   ,  trk_T ,    G    ,     M   ,    N   ,    E   ,    I   ,    O   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-        Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMM  ,   DOT  ,  SLASH ,   \
+        Z   ,    X   ,    C   ,    D   ,    V    ,     K   ,    H   ,  COMMA ,   DOT  ,  SLASH ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
                        os_NAV ,  SPACE , os_NUM  ,  os_SYM , SKYSFT
   /*                 +--------|--------|--------+ +--------|--------+                           */
 
 #define _TRACK                                                                                     \
   /*--------+--------+--------+--------+--------+ +--------|--------|--------|--------|--------|*/ \
-       XX   ,   XX   ,   XX   , cy_DPI , cy_SNP  ,    XX   ,   XX   , tg_SNP , tg_SCR ,   XX   ,   \
+     cy_DPI , cy_SNP ,   XX   ,   XX   ,   XX    ,    XX   ,   XX   , tg_SNP , tg_SCR ,   XX   ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-     os_GUI , os_ALT , os_CTL , os_SFT ,   XX    ,    XX   , os_SFT , os_CTL , os_ALT , os_GUI ,   \
+     os_GUI , os_ALT , os_CTL ,   __   ,   XX    ,    XX   , os_SFT , os_CTL , os_ALT , os_GUI ,   \
   /*--------|--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
-       __   ,   XX   , ho_SNP , ho_SCR ,   XX    ,    XX   ,  BTN1  ,  BTN3  ,  BTN2  ,   __   ,   \
+     ho_SNP , ho_SCR , os_SFT ,   XX   ,   XX    ,    XX   ,  BTN1  ,  BTN3  ,  BTN2  ,   __   ,   \
   /*--------+--------|--------|--------|--------| |--------|--------|--------|--------|--------|*/ \
                         BTN3  ,  BTN1  ,  BTN2   ,    XX   ,  LLCK
   /*                 +--------|--------|--------+ +--------|--------+                           */
@@ -117,30 +120,16 @@ const key_override_t **key_overrides = (const key_override_t *[]){
                          XX   ,   XX   ,   __    ,    XX   ,   XX
   /*                 +--------|--------|--------+ +--------|--------+                           */
 
-#define _POINTER_MOD(\
-    L00, L01, L02, L03, L04, R00, R01, R02, R03, R04, \
-    L10, L11, L12, L13, L14, R10, R11, R12, R13, R14, \
-    L20, L21, L22, L23, L24, R20, R21, R22, R23, R24, \
-    ...)                                              \
-                L00 , L01, L02, L03,           L04 ,  \
-                R00 , R01, R02, R03,           R04 ,  \
-                L10 , L11, L12, L13,           L14 ,  \
-                R10 , R11, R12, R13,           R14 ,  \
-      LT(TRACK, L20), L21, L22, L23,           L24 ,  \
-                R20 , R21, R22, R23, LT(TRACK, R24),  \
-      __VA_ARGS__
-#define POINTER(...) _POINTER_MOD(__VA_ARGS__)
-
 #define LAYOUT_wrap(...) LAYOUT_split_3x5_3(__VA_ARGS__)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [BASE] = LAYOUT_wrap(POINTER(_KC(_BASE, XX))),
+    [BASE]  = LAYOUT_wrap(_KC(_BASE,  XX)),
     [TRACK] = LAYOUT_wrap(_KC(_TRACK, XX)),
-    [SYM] = LAYOUT_wrap(_KC(_SYM, XX)),
-    [NUM] = LAYOUT_wrap(_KC(_NUM, XX)),
-    [FUN] = LAYOUT_wrap(_KC(_FUN, XX)),
-    [NAV] = LAYOUT_wrap(_KC(_NAV, XX)),
-    [SET] = LAYOUT_wrap(_KC(_SET, XX)),
+    [SYM]   = LAYOUT_wrap(_KC(_SYM,   XX)),
+    [NUM]   = LAYOUT_wrap(_KC(_NUM,   XX)),
+    [FUN]   = LAYOUT_wrap(_KC(_FUN,   XX)),
+    [NAV]   = LAYOUT_wrap(_KC(_NAV,   XX)),
+    [SET]   = LAYOUT_wrap(_KC(_SET,   XX)),
 };
 
 // clang-format on
