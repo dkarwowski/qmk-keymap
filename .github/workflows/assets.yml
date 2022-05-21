@@ -31,7 +31,7 @@ jobs:
     - name: stage changed files
       run: git add .
     - name: commit changed files
-      run: git commit -m "auto updating assets/*.svg"
+      run: git commit -m "auto updating assets/*.svg" --author "Actions <github-action@users.noreply.github.com>"
     - name: fetch from master
       run: git fetch origin main
     - name: push code to master
