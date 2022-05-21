@@ -1,11 +1,11 @@
 # Copyright 2022 Google LLC
 # SPDX-License-Identifier: Apache-2.0
 
-KEYBOARDS := bastardkb/charybdis/3x5
-
 .PHONY: build flash
-build: bastardkb/charybdis/3x5.hex
+build: bastardkb/charybdis/3x5.hex assets/bastardkb_charybdis_3x5.svg
 flash: bastardkb/charybdis/3x5
+
+KEYBOARDS := bastardkb/charybdis/3x5
 
 .SECONDEXPANSION:
 .PHONY: $(KEYBOARDS).hex
