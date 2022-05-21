@@ -29,7 +29,8 @@ enum layers { BASE = 0, TRACK, SYM, NAV, NUM, FUN, SET };
 #define KC_os_SFT OSM(MOD_LSFT)
 
 // Nav keys for easier copy / paste / etc.
-#define KC_REDO KC_AGIN
+#define KC_UNDO C(KC_Z)
+#define KC_REDO C(KC_Y)
 #define KC_PASTE S(KC_INS)
 #define KC_COPY C(KC_INS)
 #define KC_CUT S(KC_DEL)
