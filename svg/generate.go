@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"unicode"
 
 	svg "github.com/ajstarks/svgo"
 )
@@ -75,6 +76,8 @@ func (pl *parsedLayout) Height() int {
 }
 
 var symbolize = map[string]string{
+	"UNDO":   "↶",
+	"REDO":   "↷",
 	"ALT":    "⎇",
 	"AMPR":   "&",
 	"ASTR":   "*",
@@ -99,7 +102,10 @@ var symbolize = map[string]string{
 	"EXLM":   "!",
 	"GRAVE":  "`",
 	"GT":     ">",
-	"GUI":    "🗗",
+	"GUI":    "🗔",
+	"COPY":   "🗗",
+	"CUT":    "✂",
+	"PASTE":  "📋",
 	"HASH":   "#",
 	"LBRC":   "[",
 	"LCBR":   "{",
@@ -193,10 +199,20 @@ func renderKey(canvas *svg.SVG, x, y int, key string) {
 		keyText = symbol
 	}
 	canvas.Roundrect(x, y, keyDim, keyDim, keySpace, keySpace, fmt.Sprintf("fill:%s", keyColor))
-	canvas.Text(x+(keyDim/2), y+(keyDim/2)+10, keyText, fmt.Sprintf("font-size:20pt;fill:%s", textColor))
 	if underText != "" {
 		canvas.Text(x+(keyDim/2), y+(keyDim/2)+30, underText, fmt.Sprintf("font-size:10pt;fill:%s", textColor))
 	}
+
+	isASCII := true
+	for i := 0; i < len(keyText); i++ {
+		if keyText[i] > unicode.MaxASCII {
+			isASCII = false
+		}
+	}
+	if !isASCII {
+		textColor += ";font-family:'sans-serif'"
+	}
+	canvas.Text(x+(keyDim/2), y+(keyDim/2)+10, keyText, fmt.Sprintf("font-size:20pt;fill:%s", textColor))
 }
 
 func (pl *parsedLayout) Render(canvas *svg.SVG) error {
