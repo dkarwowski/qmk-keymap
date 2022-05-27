@@ -48,9 +48,9 @@ format: \
 build/generate: svg/generate.go
 	cd svg; go build -o ../$@ ../$^
 
-assets/$(subst /,_,$(KEYBOARDS)).svg: $(KEYBOARDS)/keymap.c build/generate
+assets/$(subst /,_,$(KEYBOARDS)).svg: $(KEYBOARDS)/keymap.c $(KEYBOARDS)/combos.def build/generate
 	if [ ! -d "assets" ]; then mkdir assets; fi
-	build/generate $(KEYBOARDS)/keymap.c > $@.tmp || ($(RM) $@.tmp)
+	build/generate --combos $(KEYBOARDS)/combos.def $(KEYBOARDS)/keymap.c > $@.tmp || ($(RM) $@.tmp)
 	(cmp -s $@.tmp $@ && $(RM) $@.tmp) || mv -f $@.tmp $@
 
 .PHONY: clean local-clean qmk-clean

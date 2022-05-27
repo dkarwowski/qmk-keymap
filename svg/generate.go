@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,48 +12,65 @@ import (
 	svg "github.com/ajstarks/svgo"
 )
 
-var help = `%[1]v generates SVG for a provided keymap.c file
+var (
+	comboFile = flag.String("combos", "", "combos.def file, expect only adjacent same-row keys")
+)
 
-Usage:
-
-	%[1]v [path/to/keymap.c]      Output SVG.
-	%[1]v --help                  This content.
+func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), `%[1]v generates SVG for a provided keymap.c file
 
 If no keymap is provided, content is read from stdin until EOF is read.
 The SVG is always written to stdout.
-`
 
-func main() {
+Usage:
+
+	%[1]v [OPTIONS] [path/to/keymap.c]      Output SVG.
+`, os.Args[0])
+		flag.PrintDefaults()
+	}
+
+	flag.Parse()
+
 	var keymap io.Reader
 
-	switch len(os.Args) {
-	case 1:
+	switch len(flag.Args()) {
+	case 0:
 		keymap = os.Stdin
-	case 2:
-		if os.Args[1] == "--help" || os.Args[1] == "-h" {
-			fmt.Printf(help, os.Args[0])
-			return
-		}
-
-		file, err := os.Open(os.Args[1])
+	case 1:
+		file, err := os.Open(flag.Args()[0])
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed opening %q with: %w\n", os.Args[1], err)
+			fmt.Fprintf(os.Stderr, "failed opening %q with: %v\n", os.Args[1], err)
 			os.Exit(1)
 		}
 		keymap = file
 	default:
-		fmt.Printf(help, os.Args[0])
+		flag.Usage()
 		return
+	}
+
+	var comboContent []byte
+	if *comboFile != "" {
+		var err error
+		comboContent, err = os.ReadFile(*comboFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed reading combos file: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	content, err := ioutil.ReadAll(keymap)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed reading keymap: %w", err)
+		fmt.Fprintf(os.Stderr, "failed reading keymap: %v\n", err)
 		os.Exit(1)
 	}
 
-	if err := parseKeys(string(content)).Render(os.Stdout); err != nil {
-		fmt.Fprintf(os.Stderr, "failed rendering keymap %q: %w\n", keymap, err)
+	layouts, err := parseKeys(string(content), string(comboContent))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed parsing keys: %v\n", err)
+	}
+	if err := layouts.Render(os.Stdout); err != nil {
+		fmt.Fprintf(os.Stderr, "failed rendering keymap %q: %v\n", keymap, err)
 		os.Exit(1)
 	}
 }
@@ -65,6 +83,8 @@ const (
 type parsedLayout struct {
 	name string
 	keys [][]string
+	// Left key index (row, col) -> combo-output keycode
+	combos map[int]map[int]string
 }
 
 func (pl *parsedLayout) Width() int {
@@ -76,64 +96,65 @@ func (pl *parsedLayout) Height() int {
 }
 
 var symbolize = map[string]string{
-	"UNDO":   "↶",
-	"REDO":   "↷",
-	"ALT":    "⎇",
-	"AMPR":   "&",
-	"ASTR":   "*",
-	"AT":     "@",
-	"BSLS":   "\\",
-	"BSPC":   "⇤",
-	"BTN1":   "▐▌ │",
-	"BTN2":   "│ ▐▌",
-	"BTN3":   "│▐▌│",
-	"CIRC":   "^",
-	"COLON":  ":",
-	"COMM":   ",",
-	"COMMA":  ",",
-	"CTL":    "⎈",
-	"DOLLAR": "$",
-	"DOT":    ".",
-	"DOWN":   "↓",
-	"DPI":    "TRACK",
-	"ENT":    "⤷",
-	"ENTER":  "⤷",
-	"EQUAL":  "=",
-	"EXLM":   "!",
-	"GRAVE":  "`",
-	"GT":     ">",
-	"GUI":    "🗔",
-	"COPY":   "🗗",
-	"CUT":    "✂",
-	"PASTE":  "📋",
-	"HASH":   "#",
-	"LBRC":   "[",
-	"LCBR":   "{",
-	"LEFT":   "←",
-	"LLCK":   "🔒",
-	"LPRN":   "(",
-	"LT":     "<",
-	"MINS":   "-",
-	"MINUS":  "-",
-	"PERC":   "%",
-	"PIPE":   "|",
-	"PLUS":   "+",
-	"QUOTE":  "'",
-	"RBRC":   "]",
-	"RCBR":   "}",
-	"RIGHT":  "→",
-	"RPRN":   ")",
-	"SCLN":   ";",
-	"SCR":    "SCROLL",
-	"SFT":    "⇧",
-	"SKYSFT": "⇧",
-	"SLASH":  "/",
-	"SNP":    "SNIPE",
-	"SPACE":  "‿",
-	"TAB":    "⇥",
-	"TILDE":  "~",
-	"UNDS":   "_",
-	"UP":     "↑",
+	"DRG_TOG": "SCROLL",
+	"UNDO":    "↶",
+	"REDO":    "↷",
+	"ALT":     "⎇",
+	"AMPR":    "&",
+	"ASTR":    "*",
+	"AT":      "@",
+	"BSLS":    "\\",
+	"BSPC":    "⇤",
+	"BTN1":    "▐▌ │",
+	"BTN2":    "│ ▐▌",
+	"BTN3":    "│▐▌│",
+	"CIRC":    "^",
+	"COLON":   ":",
+	"COMM":    ",",
+	"COMMA":   ",",
+	"CTL":     "⎈",
+	"DOLLAR":  "$",
+	"DOT":     ".",
+	"DOWN":    "↓",
+	"DPI":     "TRACK",
+	"ENT":     "⤷",
+	"ENTER":   "⤷",
+	"EQUAL":   "=",
+	"EXLM":    "!",
+	"GRAVE":   "`",
+	"GT":      ">",
+	"GUI":     "🗔",
+	"COPY":    "🗗",
+	"CUT":     "✂",
+	"PASTE":   "📋",
+	"HASH":    "#",
+	"LBRC":    "[",
+	"LCBR":    "{",
+	"LEFT":    "←",
+	"LLCK":    "🔒",
+	"LPRN":    "(",
+	"LT":      "<",
+	"MINS":    "-",
+	"MINUS":   "-",
+	"PERC":    "%",
+	"PIPE":    "|",
+	"PLUS":    "+",
+	"QUOTE":   "'",
+	"RBRC":    "]",
+	"RCBR":    "}",
+	"RIGHT":   "→",
+	"RPRN":    ")",
+	"SCLN":    ";",
+	"SCR":     "SCROLL",
+	"SFT":     "⇧",
+	"SKYSFT":  "⇧",
+	"SLASH":   "/",
+	"SNP":     "SNIPE",
+	"SPACE":   "‿",
+	"TAB":     "⇥",
+	"TILDE":   "~",
+	"UNDS":    "_",
+	"UP":      "↑",
 }
 
 func renderKey(canvas *svg.SVG, x, y int, key string) {
@@ -225,6 +246,10 @@ func (pl *parsedLayout) Render(canvas *svg.SVG) error {
 	standardRow := len(pl.keys[0])
 
 	for y, row := range pl.keys {
+		combos, ok := pl.combos[y]
+		if !ok {
+			combos = map[int]string{}
+		}
 		for x, key := range row {
 			if len(row) < standardRow {
 				x += (standardRow - len(row)) / 2
@@ -236,6 +261,25 @@ func (pl *parsedLayout) Render(canvas *svg.SVG) error {
 			}
 			top := y*(keySpace+keyDim) + keySpace
 			renderKey(canvas, left, top, key)
+
+			if comboKey, ok := combos[x]; ok {
+				x, y := left-((keyDim+keySpace)/2), top
+				if symbol, ok := symbolize[comboKey]; ok {
+					comboKey = symbol
+				}
+				canvas.Roundrect(x+(keyDim/6), y+keyDim/3, 2*keyDim/3, keyDim/3, keySpace, keySpace, "fill:hsl(50, 80%, 50%)")
+				isASCII := true
+				for i := 0; i < len(comboKey); i++ {
+					if comboKey[i] > unicode.MaxASCII {
+						isASCII = false
+					}
+				}
+				textColor := "fill:hsl(0, 0%, 10%)"
+				if !isASCII {
+					textColor += ";font-family:'sans-serif'"
+				}
+				canvas.Text(x+(keyDim/2), y+(keyDim/2)+5, comboKey, fmt.Sprintf("font-size:10pt;fill:%s", textColor))
+			}
 		}
 	}
 	return nil
@@ -261,7 +305,7 @@ func (pk parsedKeyboard) Render(w io.Writer) error {
 	return nil
 }
 
-func parseKeys(keymap string) parsedKeyboard {
+func parseKeys(keymap string, combos string) (parsedKeyboard, error) {
 	var layouts parsedKeyboard
 
 	var (
@@ -271,7 +315,7 @@ func parseKeys(keymap string) parsedKeyboard {
 	for _, line := range strings.Split(keymap, "\n") {
 		switch {
 		case strings.HasPrefix(line, "#define _"):
-			current = &parsedLayout{}
+			current = &parsedLayout{combos: map[int]map[int]string{}}
 			current.name = strings.TrimPrefix(line, "#define _")
 			current.name = strings.SplitN(current.name, " ", 2)[0]
 			inLayout = true
@@ -285,5 +329,72 @@ func parseKeys(keymap string) parsedKeyboard {
 		}
 	}
 
-	return layouts
+	parsedCombos := map[string]map[string]string{}
+	for _, line := range strings.Split(combos, "\n") {
+		if len(line) == 0 {
+			continue
+		}
+
+		var (
+			left, right, output string
+		)
+		for i, key := range strings.Split(line, ",") {
+			key = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(key), "KC_"), ")")
+			switch i {
+			case 0:
+				// Do nothing.
+			case 1:
+				output = key
+			case 2:
+				left = key
+			case 3:
+				right = key
+			default:
+				return nil, fmt.Errorf("invalid combos file, only keypairs allowed, line: %q", line)
+			}
+		}
+
+		createKey := func(one, two string) {
+			if _, ok := parsedCombos[one]; !ok {
+				parsedCombos[one] = map[string]string{}
+			}
+			parsedCombos[one][two] = output
+		}
+		createKey(left, right)
+		createKey(right, left)
+	}
+
+	for _, layout := range layouts {
+		for row, rowKeys := range layout.keys {
+			for col, right := range rowKeys {
+				if col == 0 {
+					continue
+				}
+				if second, ok := parsedCombos[right]; ok {
+					left := rowKeys[col-1]
+					if output, ok := second[left]; ok {
+						if _, ok := layout.combos[row]; !ok {
+							layout.combos[row] = map[int]string{}
+						}
+						layout.combos[row][col] = output
+
+						delete(parsedCombos[left], right)
+						if len(parsedCombos[left]) == 0 {
+							delete(parsedCombos, left)
+						}
+						delete(parsedCombos[right], left)
+						if len(parsedCombos[right]) == 0 {
+							delete(parsedCombos, right)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if len(parsedCombos) > 0 {
+		return nil, fmt.Errorf("keypairs must be adjacent, unhandled pairs: %+v", parsedCombos)
+	}
+
+	return layouts, nil
 }
